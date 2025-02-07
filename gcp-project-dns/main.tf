@@ -5,14 +5,19 @@ terraform {
 }
 
 provider "google" {
-  project = "${var.project_id}"
-  region  = "${var.region}"         
-  credentials = "${var.credfile}"
+  project     = var.project_id
+  region      = var.region
+  credentials = var.credfile
 }
 
-resource "google_dns_managed_zone" "public_zone" {
-  name        = "${var.dns_name}"
-  dns_name    = "${var.dns_zone_name}."
-  description = "Public hosted zone for ${var.dns_zone_name}"
-  visibility  = "public"
+module "public_hosted_zone_dev" {
+  source        = "../modules/dns"
+  dns_name      = var.dns_name_dev
+  dns_zone_name = var.dns_zone_name_dev
+}
+
+module "public_hosted_zone_prd" {
+  source        = "../modules/dns"
+  dns_name      = var.dns_name_prd
+  dns_zone_name = var.dns_zone_name_prd
 }

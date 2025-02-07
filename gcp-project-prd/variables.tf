@@ -7,17 +7,10 @@ variable "credfile" {
   type        = string
 }
 
-variable "gcs_bucket_name" {
-  description = "GCS bucket for Terraform state"
-  type        = string
-}
-
-
 variable "project_id" {
   description = "Project ID "
   type        = string
 }
-
 
 variable "vpc_cidr" {
   description = "The CIDR block for the VPC"
@@ -29,12 +22,32 @@ variable "vpc_name" {
   type        = string
 }
 
-variable "region" {
-  description = "The region for the resources"
+variable "destination_cidr" {
+  description = "The destination CIDR for the route"
   type        = string
 }
 
-variable "destination_cidr" {
-  description = "The destination CIDR for the route"
+variable "bastion_ssh_public_key" {
+  description = "The SSH public key for accessing the bastion host."
+  type        = string
+}
+
+variable "bastion_name" {
+  description = "Name of the Bastion "
+  type        = string
+}
+
+variable "bastion_machine_type" {
+  description = "Machine type of the Instance "
+  type        = string
+}
+
+variable "bastion_os" {
+  description = "OS of the instance "
+  type        = string
+}
+
+variable "cluster-name" {
+  description = "Name of the cluster"
   type        = string
 }
