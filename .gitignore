@@ -1,84 +1,40 @@
-# Terraform-related files
+csye7125-dns.json
+csye7125-prd.json
+csye7125-dev.json
+# Local .terraform directories
 **/.terraform/*
 .terraform.lock.hcl
-
-# Terraform state and backup files
+# .tfstate files
 *.tfstate
 *.tfstate.*
-.terraform.tfstate.lock.info
 
-# Terraform crash logs
+# Crash log files
 crash.log
 crash.*.log
 
-# Terraform variable files (may contain secrets)
+# Exclude all .tfvars files, which are likely to contain sensitive data, such as
+# password, private keys, and other secrets. These should not be part of version 
+# control as they are data points which are potentially sensitive and subject 
+# to change depending on the environment.
 *.tfvars
 *.tfvars.json
 
-# Terraform override files
+# Ignore override files as they are usually used to override resources locally and so
+# are not checked in
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
 
+# Ignore transient lock info files created by terraform apply
+.terraform.tfstate.lock.info
+
+# Include override files you do wish to add to version control using negated pattern
+# !example_override.tf
+
+# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
+# example: *tfplan*
+
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
-
-# JSON configuration files for different environments
-csye7125-dns.json
-csye7125-prd.json
-csye7125-dev.json
-
-# IntelliJ IDEA project files
-.idea/
-*.iml
-*.ipr
-*.iws
-out/
-.idea/modules.xml
-.idea/*.iml
-.idea/workspace.xml
-.idea/shelf/
-.idea/gradle.xml
-.idea/libraries/
-
-# VS Code settings
-.vscode/
-.vscode/settings.json
-.vscode/tasks.json
-.vscode/launch.json
-.vscode/extensions.json
-.vscode/*.code-workspace
-history/
-
-# Logs and system files
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Exclude binary files and build artifacts
-*.class
-*.jar
-*.war
-*.ear
-*.exe
-*.dll
-*.so
-*.dylib
-*.pdb
-*.zip
-*.tar.gz
-*.tgz
-
-# MacOS system files
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Windows system files
-Thumbs.db
-Desktop.ini
-$RECYCLE.BIN/

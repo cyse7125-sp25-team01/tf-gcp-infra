@@ -40,7 +40,7 @@ pipeline {
                             publishChecks name: "Terraform Check in ${dirPath}", summary: "Running Terraform fmt, init, and validate in ${dirPath}"
 
                             sh """
-                            docker run --rm --entrypoint="" -v ${BASE_DIR}:/workspace -w /workspace/${dirPath} hashicorp/terraform:latest terraform fmt -check
+                            docker run --rm --entrypoint="" -v ${BASE_DIR}:/workspace -w /workspace/${dirPath} hashicorp/terraform:latest terraform fmt -check -recursive
                             docker run --rm --entrypoint="" -v ${BASE_DIR}:/workspace -w /workspace/${dirPath} hashicorp/terraform:latest terraform init -backend=false
                             docker run --rm --entrypoint="" -v ${BASE_DIR}:/workspace -w /workspace/${dirPath} hashicorp/terraform:latest terraform validate
                             """
