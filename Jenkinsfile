@@ -18,10 +18,7 @@ pipeline {
             steps {
                 script {
                     publishChecks name: 'Terraform Setup', summary: 'Checking Terraform installation'
-
-                    // Run Terraform inside Docker and disable the entrypoint
                     sh 'docker run --rm --entrypoint="" hashicorp/terraform:latest terraform --version'
-
                     publishChecks name: 'Terraform Setup', summary: 'Terraform installed successfully', conclusion: 'SUCCESS'
                 }
             }
@@ -37,25 +34,18 @@ pipeline {
 
                     for (dirPath in directories) {
                         dirPath = dirPath.trim()
-                        if (dirPath) { // Ensure it's a valid directory
+                        if (dirPath) {
                             echo "🔍 Running Terraform checks in directory: ${dirPath}"
+                            
+                            publishChecks name: "Terraform Check in ${dirPath}", summary: "Running Terraform fmt, init, and validate in ${dirPath}"
 
-                            // Ensure we use `dir()` correctly within the steps block
-                            stage("Terraform Checks in ${dirPath}") {
-                                steps {
-                                    script {
-                                        publishChecks name: "Terraform Check in ${dirPath}", summary: "Running Terraform fmt, init, and validate in ${dirPath}"
+                            sh """
+                            docker run --rm --entrypoint="" -v ${BASE_DIR}:/workspace -w /workspace/${dirPath} hashicorp/terraform:latest terraform fmt -check
+                            docker run --rm --entrypoint="" -v ${BASE_DIR}:/workspace -w /workspace/${dirPath} hashicorp/terraform:latest terraform init -backend=false
+                            docker run --rm --entrypoint="" -v ${BASE_DIR}:/workspace -w /workspace/${dirPath} hashicorp/terraform:latest terraform validate
+                            """
 
-                                        sh """
-                                        docker run --rm --entrypoint="" -v ${BASE_DIR}:/workspace -w /workspace/${dirPath} hashicorp/terraform:latest terraform fmt -check
-                                        docker run --rm --entrypoint="" -v ${BASE_DIR}:/workspace -w /workspace/${dirPath} hashicorp/terraform:latest terraform init -backend=false
-                                        docker run --rm --entrypoint="" -v ${BASE_DIR}:/workspace -w /workspace/${dirPath} hashicorp/terraform:latest terraform validate
-                                        """
-
-                                        publishChecks name: "Terraform Check in ${dirPath}", summary: "Terraform checks passed in ${dirPath}", conclusion: 'SUCCESS'
-                                    }
-                                }
-                            }
+                            publishChecks name: "Terraform Check in ${dirPath}", summary: "Terraform checks passed in ${dirPath}", conclusion: 'SUCCESS'
                         }
                     }
                 }
