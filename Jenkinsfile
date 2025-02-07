@@ -3,19 +3,10 @@ pipeline {
 
     environment {
         BASE_DIR = "${env.WORKSPACE}"
+        TERRAFORM_BIN = "/usr/bin/terraform"
     }
 
     stages {
-        stage('Set up Terraform') {
-            steps {
-                script {
-                    publishChecks name: 'Terraform Setup', summary: 'Checking Terraform installation'
-                    sh 'docker run --rm --entrypoint="" hashicorp/terraform:latest terraform --version'
-                    publishChecks name: 'Terraform Setup', summary: 'Terraform installed successfully', conclusion: 'SUCCESS'
-                }
-            }
-        }
-
         stage('Terraform Checks for All Subdirectories') {
             steps {
                 script {
@@ -27,15 +18,13 @@ pipeline {
                     for (dirPath in directories) {
                         dirPath = dirPath.trim()
                         if (dirPath) {
-                            echo "🔍 Running Terraform checks in directory: ${dirPath}"
-                            
-                            publishChecks name: "Terraform Check in ${dirPath}", summary: "Running Terraform fmt, and validate in ${dirPath}"
-
+                            echo "🔍 Running Terraform checks in directory: ${dirPath}"                        
                             sh """
-                            docker run --rm --entrypoint="" -v ${BASE_DIR}:/workspace -w /workspace/${dirPath} hashicorp/terraform:latest terraform fmt -check -recursive
-                            docker run --rm --entrypoint="" -v ${BASE_DIR}:/workspace -w /workspace/${dirPath} hashicorp/terraform:latest terraform validate
+                            cd ${dirPath}
+                            ${TERRAFORM_BIN} fmt -check -recursive
+			    ${TERRAFORM_BIN} init -backend=false
+                            ${TERRAFORM_BIN} validate
                             """
-
                             publishChecks name: "Terraform Check in ${dirPath}", summary: "Terraform checks passed in ${dirPath}", conclusion: 'SUCCESS'
                         }
                     }
@@ -45,9 +34,6 @@ pipeline {
     }
 
     post {
-        always {
-            archiveArtifacts artifacts: '**/*.tf', fingerprint: true
-        }
         failure {
             script {
                 publishChecks name: 'Terraform Pipeline', summary: 'Terraform validation failed', conclusion: 'FAILURE'
