@@ -8,7 +8,7 @@ provider "google" {
   project     = var.project_id
   region      = var.region
   credentials = var.credfile
-
+}
 
 module "public_hosted_zone_dev" {
   source        = "../modules/dns"
