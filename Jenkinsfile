@@ -44,7 +44,7 @@ pipeline {
                                 steps {
                                     script {
                                         publishChecks name: "Terraform Check in ${dir}", summary: "Running Terraform fmt, init, and validate in ${dir}"
-                                        
+
                                         // Run Terraform format check
                                         sh 'terraform fmt -check'
 
@@ -53,7 +53,7 @@ pipeline {
                                         terraform init
                                         terraform validate
                                         '''
-                                        
+
                                         publishChecks name: "Terraform Check in ${dir}", summary: "Terraform checks passed in ${dir}", conclusion: 'SUCCESS'
                                     }
                                 }
