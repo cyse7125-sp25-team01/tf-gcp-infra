@@ -22,6 +22,7 @@ pipeline {
                             sh """
                             cd ${dirPath}
                             ${TERRAFORM_BIN} fmt -check -recursive
+			    ${TERRAFORM_BIN} init -backend=false
                             ${TERRAFORM_BIN} validate
                             """
                             publishChecks name: "Terraform Check in ${dirPath}", summary: "Terraform checks passed in ${dirPath}", conclusion: 'SUCCESS'
