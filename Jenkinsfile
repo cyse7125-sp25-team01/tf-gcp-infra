@@ -1,9 +1,12 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'hashicorp/terraform:latest' // Run Terraform inside Docker
+        }
+    }
 
     environment {
-        TF_VERSION = "1.4.6"
-        BASE_DIR = "${env.WORKSPACE}" // Base directory where the repository is cloned
+        BASE_DIR = "${env.WORKSPACE}" // Base directory where the repo is cloned
     }
 
     stages {
@@ -19,7 +22,7 @@ pipeline {
             steps {
                 script {
                     publishChecks name: 'Terraform Setup', summary: 'Checking Terraform installation'
-                    sh 'terraform --version'
+                    sh 'terraform --version' // Check Terraform version
                     publishChecks name: 'Terraform Setup', summary: 'Terraform installed successfully', conclusion: 'SUCCESS'
                 }
             }
@@ -28,33 +31,34 @@ pipeline {
         stage('Terraform Checks for All Subdirectories') {
             steps {
                 script {
-                    // Identify all subdirectories containing Terraform code
                     def directories = sh(
-                        script: "find ${BASE_DIR} -type d -not -path '*/.*'",
+                        script: "find ${BASE_DIR} -type d -not -path '*/.*' -not -path '${BASE_DIR}'",
                         returnStdout: true
                     ).trim().split('\n')
 
                     // Iterate through each subdirectory
                     for (dir in directories) {
                         dir = dir.trim()
-                        echo "Running Terraform checks in directory: ${dir}"
+                        if (dir) { // Skip empty entries
+                            echo "🔍 Running Terraform checks in directory: ${dir}"
 
-                        dir("${dir}") {
-                            stage("Terraform Checks in ${dir}") {
-                                steps {
-                                    script {
-                                        publishChecks name: "Terraform Check in ${dir}", summary: "Running Terraform fmt, init, and validate in ${dir}"
+                            dir("${dir}") {
+                                stage("Terraform Checks in ${dir}") {
+                                    steps {
+                                        script {
+                                            publishChecks name: "Terraform Check in ${dir}", summary: "Running Terraform fmt, init, and validate in ${dir}"
 
-                                        // Run Terraform format check
-                                        sh 'terraform fmt -check'
+                                            // Run Terraform format check
+                                            sh 'terraform fmt -check'
 
-                                        // Initialize and validate Terraform
-                                        sh '''
-                                        terraform init
-                                        terraform validate
-                                        '''
-
-                                        publishChecks name: "Terraform Check in ${dir}", summary: "Terraform checks passed in ${dir}", conclusion: 'SUCCESS'
+                                            // Initialize and validate Terraform
+                                            sh '''
+                                            terraform init -backend=false
+                                            terraform validate
+                                            '''
+                                            
+                                            publishChecks name: "Terraform Check in ${dir}", summary: "Terraform checks passed in ${dir}", conclusion: 'SUCCESS'
+                                        }
                                     }
                                 }
                             }
