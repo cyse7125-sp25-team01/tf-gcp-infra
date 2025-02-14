@@ -78,6 +78,19 @@ resource "google_compute_firewall" "allow_ssh" {
   target_tags   = ["public-instance", "bastion"]
 }
 
+resource "google_compute_firewall" "allow_port_app" {
+  name    = "${var.vpc_name}-allow-port-app"
+  network = google_compute_network.app_vpc.id
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8080", "30080"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["public-instance", "bastion"]
+}
+
 # Allow HTTP (port 80) and HTTPS (port 443) 
 resource "google_compute_firewall" "allow_http_https" {
   name    = "${var.vpc_name}-allow-http-https"
