@@ -1,7 +1,7 @@
 variable "region" {
   description = "Region "
   type        = string
-}
+
 variable "credfile" {
   description = "Location of the Cred File "
   type        = string
