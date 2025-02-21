@@ -1,4 +1,4 @@
-# GCP Infrastructure Terraform Setup
+# GCP Infrastructure Setup using Terraform
 
 ## Overview
 
