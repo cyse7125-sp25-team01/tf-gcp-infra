@@ -42,3 +42,5 @@ variable "cluster-name" {
   description = "Name of the cluster"
   type        = string
 }
+
+variable "crypto_key_id" {}

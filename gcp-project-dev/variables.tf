@@ -51,3 +51,22 @@ variable "cluster-name" {
   description = "Name of the cluster"
   type        = string
 }
+variable "postgres_password" {
+  description = "Postgres password"
+  type        = string
+}
+
+variable "secret_name" {
+  description = "Secret Name"
+  type        = string
+}
+
+variable "dns_zone_name" {
+  description = "The name of the DNS zone "
+  type        = string
+}
+
+variable "dns_name" {
+  description = "DNS Name "
+  type        = string
+}

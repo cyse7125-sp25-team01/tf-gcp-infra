@@ -1,6 +1,6 @@
 csye7125-dns.json
 csye7125-prd.json
-csye7125-dev.json
+csye-dev.json
 # Local .terraform directories
 **/.terraform/*
 .terraform.lock.hcl
