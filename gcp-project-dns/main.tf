@@ -35,9 +35,9 @@ resource "google_dns_managed_zone" "public_zone" {
 
 
 resource "google_dns_managed_zone" "dev_zone" {
-  provider = google.dev
-  name     = "${var.dns_zone_name_dev}"
-  dns_name = "${var.dns_name_dev}."
+  provider    = google.dev
+  name        = var.dns_zone_name_dev
+  dns_name    = "${var.dns_name_dev}."
   description = "Public hosted zone for ${var.dns_zone_name_dev}"
   visibility  = "public"
 }
@@ -52,12 +52,12 @@ resource "google_dns_record_set" "dev_delegation" {
 }
 
 resource "google_dns_managed_zone" "prd_zone" {
-  provider = google.prd
-  name     = "${var.dns_zone_name_prd}"
-  dns_name = "${var.dns_name_prd}."
+  provider    = google.prd
+  name        = var.dns_zone_name_prd
+  dns_name    = "${var.dns_name_prd}."
   description = "Public hosted zone for ${var.dns_zone_name_prd}"
   visibility  = "public"
- }
+}
 
 resource "google_dns_record_set" "prd_delegation" {
   provider     = google.dns
