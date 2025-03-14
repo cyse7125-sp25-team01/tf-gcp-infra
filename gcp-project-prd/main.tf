@@ -30,6 +30,13 @@ module "bastion" {
     module.gke
   ]
 }
+
+module "cmek" {
+  source     = "../modules/cmek"
+  project_id = var.project_id
+  region     = var.region
+}
+
 module "gke" {
   source            = "../modules/gke"
   region            = var.region
@@ -40,5 +47,30 @@ module "gke" {
   public_subnet     = module.vpc.public_subnet_ids[0]
   cluster-name      = var.cluster-name
   project_id        = var.project_id
+  crypto_key_id     = module.cmek.gke_crypto_key_id
 }
 
+module "external_ip" {
+  source     = "../modules/external_ip"
+  region     = var.region
+  project_id = var.project_id
+}
+
+module "sm" {
+  source            = "../modules/secretmanager"
+  region            = var.region
+  postgres_password = var.postgres_password
+  secret_name       = var.secret_name
+}
+
+module "dns_record" {
+  source        = "../modules/dns"
+  dns_name      = var.dns_name
+  dns_zone_name = var.dns_zone_name
+  external_ip   = module.external_ip.external_ip
+}
+
+module "gcs" {
+  source = "../modules/gcs"
+  region = var.region
+}

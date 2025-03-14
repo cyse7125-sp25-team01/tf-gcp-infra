@@ -40,7 +40,6 @@ resource "google_compute_instance" "bastion_host" {
   }
 
   metadata_startup_script = <<SCRIPT
-      # Install necessary tools
       curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
       echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
       sudo apt-get update -y
@@ -48,6 +47,11 @@ resource "google_compute_instance" "bastion_host" {
       sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
       sudo apt-get install kubectl -y
       echo "gcloud container clusters get-credentials ${var.cluster-name} --region ${var.region} --project ${var.project_id}" >> /etc/profile
+      curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+      chmod 700 get_helm.sh
+      ./get_helm.sh
+      helm repo add external-secrets https://charts.external-secrets.io
+      helm install external-secrets external-secrets/external-secrets
     SCRIPT
 
 
