@@ -3,6 +3,11 @@ variable "postgres_password" {
   type        = string
 }
 
+variable "dockerhub-secret" {
+  description = "Dockerhub secret"
+  type        = string
+}
+
 variable "secret_name" {
   description = "Secret Name"
   type        = string
