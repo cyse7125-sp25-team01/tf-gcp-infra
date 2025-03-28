@@ -146,3 +146,16 @@ resource "google_compute_firewall" "allow_bastion_to_gke_nodes" {
   source_tags = ["bastion"]
   target_tags = ["private-instance"]
 }
+
+resource "google_compute_firewall" "allow_istio_cni" {
+  name    = "${var.vpc_name}-allow-istio-cni"
+  network = google_compute_network.app_vpc.id
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8000"]
+  }
+
+  source_ranges = local.private_subnet_cidrs
+  target_tags   = ["private-instance"]
+}
