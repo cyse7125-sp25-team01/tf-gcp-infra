@@ -115,13 +115,16 @@ resource "google_container_node_pool" "pool_a" {
   # node_count = 1
   location = "${var.region}-d"
   node_config {
-    machine_type      = "e2-medium"
-    disk_size_gb      = 15
+    machine_type      = "e2-standard-2"
+    disk_size_gb      = 50
     image_type        = "COS_CONTAINERD"
     tags              = ["private-instance"]
     service_account   = google_service_account.gke_node_sa.email
     oauth_scopes      = ["https://www.googleapis.com/auth/cloud-platform"]
     boot_disk_kms_key = var.crypto_key_id
+    labels = {
+      "pool" = "a"
+    }
   }
   initial_node_count = 1 # Ensures only 1 node per pool
 
@@ -137,13 +140,16 @@ resource "google_container_node_pool" "pool_b" {
   # node_count = 1
   location = "${var.region}-b"
   node_config {
-    machine_type      = "e2-medium"
-    disk_size_gb      = 15
+    machine_type      = "e2-standard-2"
+    disk_size_gb      = 50
     image_type        = "COS_CONTAINERD"
     tags              = ["private-instance"]
     service_account   = google_service_account.gke_node_sa.email
     oauth_scopes      = ["https://www.googleapis.com/auth/cloud-platform"]
     boot_disk_kms_key = var.crypto_key_id
+    labels = {
+      "pool" = "b"
+    }
   }
   initial_node_count = 1 # Ensures only 1 node per pool
 
@@ -159,14 +165,18 @@ resource "google_container_node_pool" "pool_c" {
   # node_count = 1
   location = "${var.region}-c"
   node_config {
-    machine_type      = "e2-medium"
-    disk_size_gb      = 15
+    machine_type      = "e2-standard-2"
+    disk_size_gb      = 50
     image_type        = "COS_CONTAINERD"
     tags              = ["private-instance"]
     service_account   = google_service_account.gke_node_sa.email
     oauth_scopes      = ["https://www.googleapis.com/auth/cloud-platform"]
     boot_disk_kms_key = var.crypto_key_id
+    labels = {
+      "pool" = "c"
+    }
   }
+
   initial_node_count = 1 # Ensures only 1 node per pool
 
   autoscaling {

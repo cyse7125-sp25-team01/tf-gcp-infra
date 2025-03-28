@@ -19,6 +19,7 @@ resource "google_compute_instance" "bastion_host" {
   boot_disk {
     initialize_params {
       image = var.os
+      size  = 100
     }
   }
 
