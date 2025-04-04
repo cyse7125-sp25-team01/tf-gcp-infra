@@ -25,7 +25,6 @@ spec:
         k8s:
           service:
             type: LoadBalancer
-            loadBalancerIP: 
           resources:
             requests:
               cpu: 250m

@@ -64,12 +64,12 @@ module "sm" {
   dockerhub-secret  = var.dockerhub-secret
 }
 
-module "dns_record" {
-  source        = "../modules/dns"
-  dns_name      = var.dns_name
-  dns_zone_name = var.dns_zone_name
-  external_ip   = module.external_ip.external_ip
-}
+# module "dns_record" {
+#   source        = "../modules/dns"
+#   dns_name      = var.dns_name
+#   dns_zone_name = var.dns_zone_name
+#   external_ip   = module.external_ip.external_ip
+# }
 
 module "gcs" {
   source = "../modules/gcs"

@@ -12,6 +12,12 @@ resource "google_project_iam_member" "container-engine" {
   member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 }
 
+# resource "google_project_iam_member" "container-engine-sa" {
+#   project = var.project_id
+#   role    = "roles/container.serviceAgent"
+#   member  = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
+# }
+
 resource "google_service_account" "gke_node_sa" {
   account_id   = "gke-node-sa"
   display_name = "GKE Node Service Account"
@@ -22,9 +28,27 @@ resource "google_service_account" "k8s_workload_identity_sa" {
   display_name = "Kubernetes Workload Identity Service Account"
 }
 
+resource "google_project_iam_member" "gke_node_monitoring" {
+  project = var.project_id
+  role    = "roles/monitoring.admin"
+  member  = "serviceAccount:${google_service_account.gke_node_sa.email}"
+}
+
+resource "google_project_iam_member" "gke_node_logging" {
+  project = var.project_id
+  role    = "roles/logging.admin"
+  member  = "serviceAccount:${google_service_account.gke_node_sa.email}"
+}
+
 resource "google_project_iam_member" "gcs_access" {
   project = var.project_id
   role    = "roles/storage.admin"
+  member  = "serviceAccount:${google_service_account.k8s_workload_identity_sa.email}"
+}
+
+resource "google_project_iam_member" "dns_access" {
+  project = var.project_id
+  role    = "roles/dns.admin"
   member  = "serviceAccount:${google_service_account.k8s_workload_identity_sa.email}"
 }
 
@@ -55,6 +79,7 @@ resource "google_service_account_iam_binding" "k8s_workload_identity_binding" {
     "serviceAccount:${var.project_id}.svc.id.goog[default/gcs-sa]",
     "serviceAccount:${var.project_id}.svc.id.goog[default/sm-sa]",
     "serviceAccount:${var.project_id}.svc.id.goog[webapp/sm-sa]",
+    "serviceAccount:${var.project_id}.svc.id.goog[external-dns/external-dns]",
   ]
 
   depends_on = [
@@ -94,6 +119,29 @@ resource "google_container_cluster" "private_gke_cluster" {
   database_encryption {
     state    = "ENCRYPTED"
     key_name = var.crypto_key_id
+  }
+
+  monitoring_config {
+    enable_components = [
+      "SYSTEM_COMPONENTS",
+      "DEPLOYMENT",
+      "APISERVER",
+      "SCHEDULER",
+      "CONTROLLER_MANAGER",
+      "STORAGE"
+    ]
+
+    managed_prometheus {
+      enabled = true
+    }
+  }
+
+  # Add logging configuration
+  logging_config {
+    enable_components = [
+      "SYSTEM_COMPONENTS",
+      "WORKLOADS"
+    ]
   }
 
   workload_identity_config {
@@ -183,4 +231,188 @@ resource "google_container_node_pool" "pool_c" {
     min_node_count = 1
     max_node_count = 1
   }
+}
+
+resource "google_monitoring_dashboard" "cert_manager_external_dns_dashboard" {
+  dashboard_json = <<EOF
+{
+  "displayName": "Cert-Manager and External-DNS Dashboard Grafana",
+  "dashboardFilters": [],
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "Certmanager certificate expiration timestamp seconds",
+        "scorecard": {
+          "gaugeView": {
+            "lowerBound": 0,
+            "upperBound": 1
+          },
+          "thresholds": [],
+          "timeSeriesQuery": {
+            "outputFullDuration": true,
+            "timeSeriesFilter": {
+              "aggregation": {
+                "alignmentPeriod": "60s",
+                "crossSeriesReducer": "REDUCE_SUM",
+                "groupByFields": [],
+                "perSeriesAligner": "ALIGN_MEAN"
+              },
+              "filter": "metric.type=\"prometheus.googleapis.com/certmanager_certificate_expiration_timestamp_seconds/gauge\" resource.type=\"prometheus_target\""
+            }
+          }
+        }
+      },
+      {
+        "title": "Certmanager certificate ready status",
+        "scorecard": {
+          "thresholds": [],
+          "timeSeriesQuery": {
+            "outputFullDuration": true,
+            "timeSeriesFilter": {
+              "aggregation": {
+                "alignmentPeriod": "60s",
+                "crossSeriesReducer": "REDUCE_SUM",
+                "groupByFields": [],
+                "perSeriesAligner": "ALIGN_MEAN"
+              },
+              "filter": "metric.type=\"prometheus.googleapis.com/certmanager_certificate_ready_status/gauge\" resource.type=\"prometheus_target\""
+            }
+          }
+        }
+      },
+      {
+        "title": "Certmanager certificate renewal timestamp seconds",
+        "timeSeriesTable": {
+          "columnSettings": [],
+          "dataSets": [
+            {
+              "minAlignmentPeriod": "60s",
+              "timeSeriesQuery": {
+                "outputFullDuration": true,
+                "timeSeriesFilter": {
+                  "aggregation": {
+                    "crossSeriesReducer": "REDUCE_SUM",
+                    "groupByFields": [],
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  },
+                  "filter": "metric.type=\"prometheus.googleapis.com/certmanager_certificate_renewal_timestamp_seconds/gauge\" resource.type=\"prometheus_target\""
+                }
+              }
+            }
+          ],
+          "metricVisualization": "NUMBER"
+        }
+      },
+      {
+        "title": "Certmanager http acme client request count",
+        "scorecard": {
+          "blankView": {},
+          "thresholds": [],
+          "timeSeriesQuery": {
+            "outputFullDuration": true,
+            "timeSeriesFilter": {
+              "aggregation": {
+                "alignmentPeriod": "60s",
+                "crossSeriesReducer": "REDUCE_SUM",
+                "groupByFields": [],
+                "perSeriesAligner": "ALIGN_RATE"
+              },
+              "filter": "metric.type=\"prometheus.googleapis.com/certmanager_http_acme_client_request_count/counter\" resource.type=\"prometheus_target\""
+            }
+          }
+        }
+      },
+      {
+        "title": "External DNS Registry A Records",
+        "timeSeriesTable": {
+          "columnSettings": [],
+          "dataSets": [
+            {
+              "minAlignmentPeriod": "60s",
+              "timeSeriesQuery": {
+                "outputFullDuration": true,
+                "timeSeriesFilter": {
+                  "aggregation": {
+                    "crossSeriesReducer": "REDUCE_SUM",
+                    "groupByFields": [],
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  },
+                  "filter": "metric.type=\"prometheus.googleapis.com/external_dns_registry_a_records/gauge\" resource.type=\"prometheus_target\""
+                }
+              }
+            }
+          ],
+          "metricVisualization": "NUMBER"
+        }
+      },
+      {
+        "title": "Cert Manager logs",
+        "logsPanel": {
+          "filter": "",
+          "resourceNames": [
+            "projects/${var.project_id}/locations/global/logScopes/_Default"
+          ]
+        }
+      },
+      {
+        "title": "External DNS Controller Verified A Records",
+        "timeSeriesTable": {
+          "columnSettings": [],
+          "dataSets": [
+            {
+              "minAlignmentPeriod": "60s",
+              "timeSeriesQuery": {
+                "outputFullDuration": true,
+                "timeSeriesFilter": {
+                  "aggregation": {
+                    "crossSeriesReducer": "REDUCE_SUM",
+                    "groupByFields": [],
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  },
+                  "filter": "metric.type=\"prometheus.googleapis.com/external_dns_controller_verified_a_records/gauge\" resource.type=\"prometheus_target\"",
+                  "pickTimeSeriesFilter": {
+                    "direction": "TOP",
+                    "numTimeSeries": 30,
+                    "rankingMethod": "METHOD_MEAN"
+                  }
+                }
+              }
+            }
+          ],
+          "metricVisualization": "BAR"
+        }
+      },
+      {
+        "title": "External dns source a records",
+        "scorecard": {
+          "blankView": {},
+          "thresholds": [],
+          "timeSeriesQuery": {
+            "outputFullDuration": true,
+            "timeSeriesFilter": {
+              "aggregation": {
+                "alignmentPeriod": "60s",
+                "crossSeriesReducer": "REDUCE_SUM",
+                "groupByFields": [],
+                "perSeriesAligner": "ALIGN_MEAN"
+              },
+              "filter": "metric.type=\"prometheus.googleapis.com/external_dns_source_a_records/gauge\" resource.type=\"prometheus_target\""
+            }
+          }
+        }
+      },
+      {
+        "title": "External DNS Logs",
+        "logsPanel": {
+          "filter": "",
+          "resourceNames": [
+            "projects/${var.project_id}/locations/global/logScopes/_Default"
+          ]
+        }
+      }
+    ]
+  }
+}
+EOF
 }

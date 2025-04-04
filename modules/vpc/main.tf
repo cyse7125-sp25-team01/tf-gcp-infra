@@ -159,3 +159,36 @@ resource "google_compute_firewall" "allow_istio_cni" {
   source_ranges = local.private_subnet_cidrs
   target_tags   = ["private-instance"]
 }
+
+resource "google_compute_firewall" "allow_prometheus_metrics" {
+  name    = "${var.vpc_name}-allow-prometheus-metrics"
+  network = google_compute_network.app_vpc.id
+
+  allow {
+    protocol = "tcp"
+    ports    = ["9090-9999"] # Range covering common metrics ports
+  }
+
+  # Allow traffic from within the VPC
+  source_ranges = [var.vpc_cidr]
+  target_tags   = ["private-instance"]
+}
+
+resource "google_compute_firewall" "allow_internal_traffic_2" {
+  name    = "${var.vpc_name}-allow-internal-traffic-2"
+  network = google_compute_network.app_vpc.id
+
+  allow {
+    protocol = "tcp"
+    ports    = ["0-65535"]
+  }
+
+  allow {
+    protocol = "udp"
+    ports    = ["0-65535"]
+  }
+
+  # Allow traffic from within the VPC, not just private subnets
+  source_ranges = [var.vpc_cidr]
+  target_tags   = ["public-instance", "private-instance"]
+}
