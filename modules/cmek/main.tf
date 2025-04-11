@@ -1,5 +1,6 @@
 resource "google_kms_key_ring" "gke_key_ring" {
-  name     = "gke-key-ring-${lower(replace(timestamp(), ":", "-"))}"
+  name = "gke-key-ring-${lower(replace(timestamp(), ":", "-"))}"
+  # name     = "csye7125-ring-10"
   location = var.region
   project  = var.project_id
 }

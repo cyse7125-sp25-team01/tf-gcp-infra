@@ -1,5 +1,6 @@
 resource "google_storage_bucket" "bucket" {
-  name                        = "csye7125-team01-sp2025"
+  # name                        = "csye7125-team01-sp2025"
+  name                        = var.bucket_name
   location                    = "US"
   storage_class               = "STANDARD"
   force_destroy               = true

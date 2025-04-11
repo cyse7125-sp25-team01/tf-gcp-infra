@@ -68,3 +68,37 @@ resource "google_dns_record_set" "prd_delegation" {
   rrdatas      = google_dns_managed_zone.prd_zone.name_servers
 }
 
+resource "google_dns_managed_zone" "dev_zone_trace" {
+  provider    = google.dev
+  name        = var.dns_zone_name_dev_trace
+  dns_name    = "${var.dns_name_dev_trace}."
+  description = "Public hosted zone for ${var.dns_zone_name_dev_trace}"
+  visibility  = "public"
+}
+
+resource "google_dns_record_set" "dev_delegation_trace" {
+  provider     = google.dns
+  managed_zone = google_dns_managed_zone.public_zone.name
+  name         = "${var.dns_name_dev_trace}."
+  type         = "NS"
+  ttl          = 60
+  rrdatas      = google_dns_managed_zone.dev_zone_trace.name_servers
+}
+
+resource "google_dns_managed_zone" "prd_zone_trace" {
+  provider    = google.prd
+  name        = var.dns_zone_name_prd_trace
+  dns_name    = "${var.dns_name_prd_trace}."
+  description = "Public hosted zone for ${var.dns_zone_name_prd_trace}"
+  visibility  = "public"
+}
+
+resource "google_dns_record_set" "prd_delegation_trace" {
+  provider     = google.dns
+  managed_zone = google_dns_managed_zone.public_zone.name
+  name         = "${var.dns_name_prd_trace}."
+  type         = "NS"
+  ttl          = 60
+  rrdatas      = google_dns_managed_zone.prd_zone_trace.name_servers
+}
+

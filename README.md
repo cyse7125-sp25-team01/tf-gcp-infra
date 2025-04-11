@@ -1,5 +1,5 @@
 # GCP Infrastructure Setup using Terraform
-
+# https://github.com/antonputra/tutorials/blob/main/lessons/132/k8s/prometheus-ui/1-deployment.yaml
 ## Overview
 
 This repository manages the infrastructure setup for multiple GCP projects using Terraform. The structure follows a modular approach, with reusable Terraform modules stored under the `modules` directory. The infrastructure is provisioned for development (`gcp-project-dev`), production (`gcp-project-prd`), and DNS (`gcp-project-dns`) projects.
