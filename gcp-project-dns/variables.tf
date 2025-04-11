@@ -23,13 +23,33 @@ variable "dns_name_dev" {
   type        = string
 }
 
-variable "dns_zone_name_prd" {
-  description = "The name of the DNS zone - Prd"
+variable "dns_zone_name_dev_trace" {
+  description = "The name of the DNS zone - Dev Trace"
+  type        = string
+}
+
+variable "dns_name_dev_trace" {
+  description = "DNS Name - Dev Trace"
+  type        = string
+}
+
+variable "dns_zone_name_prd_trace" {
+  description = "The name of the DNS zone - Prd Trace"
   type        = string
 }
 
 variable "dns_name_prd" {
   description = "DNS Name - Prd"
+  type        = string
+}
+
+variable "dns_zone_name_prd" {
+  description = "The name of the DNS zone - Prd"
+  type        = string
+}
+
+variable "dns_name_prd_trace" {
+  description = "DNS Name - Prd Trace"
   type        = string
 }
 

@@ -34,6 +34,8 @@ resource "google_project_iam_member" "gke_node_monitoring" {
   member  = "serviceAccount:${google_service_account.gke_node_sa.email}"
 }
 
+
+
 resource "google_project_iam_member" "gke_node_logging" {
   project = var.project_id
   role    = "roles/logging.admin"
@@ -46,9 +48,21 @@ resource "google_project_iam_member" "gcs_access" {
   member  = "serviceAccount:${google_service_account.k8s_workload_identity_sa.email}"
 }
 
+resource "google_project_iam_member" "pubsub_admin" {
+  project = var.project_id
+  role    = "roles/pubsub.admin"
+  member  = "serviceAccount:${google_service_account.k8s_workload_identity_sa.email}"
+}
+
 resource "google_project_iam_member" "dns_access" {
   project = var.project_id
   role    = "roles/dns.admin"
+  member  = "serviceAccount:${google_service_account.k8s_workload_identity_sa.email}"
+}
+
+resource "google_project_iam_member" "cloudtrace_admin" {
+  project = var.project_id
+  role    = "roles/cloudtrace.admin"
   member  = "serviceAccount:${google_service_account.k8s_workload_identity_sa.email}"
 }
 
@@ -80,6 +94,7 @@ resource "google_service_account_iam_binding" "k8s_workload_identity_binding" {
     "serviceAccount:${var.project_id}.svc.id.goog[default/sm-sa]",
     "serviceAccount:${var.project_id}.svc.id.goog[webapp/sm-sa]",
     "serviceAccount:${var.project_id}.svc.id.goog[external-dns/external-dns]",
+    "serviceAccount:${var.project_id}.svc.id.goog[monitoring/otel-collector-sa]",
   ]
 
   depends_on = [
@@ -181,7 +196,6 @@ resource "google_container_node_pool" "pool_a" {
     max_node_count = 1
   }
 }
-
 resource "google_container_node_pool" "pool_b" {
   name    = "node-pool-b"
   cluster = google_container_cluster.private_gke_cluster.id

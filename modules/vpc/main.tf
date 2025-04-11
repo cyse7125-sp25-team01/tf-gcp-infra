@@ -192,3 +192,17 @@ resource "google_compute_firewall" "allow_internal_traffic_2" {
   source_ranges = [var.vpc_cidr]
   target_tags   = ["public-instance", "private-instance"]
 }
+
+resource "google_compute_firewall" "allow_opentelemetry" {
+  name    = "${var.vpc_name}-allow-opentelemetry"
+  network = google_compute_network.app_vpc.id
+
+  allow {
+    protocol = "tcp"
+    ports    = ["4317", "4318"] # OpenTelemetry Collector ports
+  }
+
+  # Allow traffic within the VPC
+  source_ranges = [var.vpc_cidr]
+  target_tags   = ["private-instance"]
+}

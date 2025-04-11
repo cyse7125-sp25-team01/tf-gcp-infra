@@ -50,11 +50,11 @@ module "gke" {
   crypto_key_id     = module.cmek.gke_crypto_key_id
 }
 
-module "external_ip" {
-  source     = "../modules/external_ip"
-  region     = var.region
-  project_id = var.project_id
-}
+# module "external_ip" {
+#   source     = "../modules/external_ip"
+#   region     = var.region
+#   project_id = var.project_id
+# }
 
 module "sm" {
   source            = "../modules/secretmanager"
@@ -72,6 +72,14 @@ module "sm" {
 # }
 
 module "gcs" {
-  source = "../modules/gcs"
-  region = var.region
+  source      = "../modules/gcs"
+  region      = var.region
+  bucket_name = var.bucket_name
+}
+
+module "pubsub" {
+  source                   = "../modules/pubsub"
+  bucket_name              = var.bucket_name
+  pubsub_topic_name        = var.pubsub_topic_name
+  pubsub_subscription_name = var.pubsub_subscription_name
 }
