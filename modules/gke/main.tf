@@ -95,6 +95,7 @@ resource "google_service_account_iam_binding" "k8s_workload_identity_binding" {
     "serviceAccount:${var.project_id}.svc.id.goog[webapp/sm-sa]",
     "serviceAccount:${var.project_id}.svc.id.goog[external-dns/external-dns]",
     "serviceAccount:${var.project_id}.svc.id.goog[monitoring/otel-collector-sa]",
+    "serviceAccount:${var.project_id}.svc.id.goog[trace/trace-sa]",
   ]
 
   depends_on = [
@@ -108,7 +109,7 @@ resource "google_container_cluster" "private_gke_cluster" {
   initial_node_count       = 1
   deletion_protection      = false
   remove_default_node_pool = true
-  min_master_version       = "1.30.9"
+  min_master_version       = "1.30.10"
   private_cluster_config {
     enable_private_nodes    = true
     enable_private_endpoint = true
