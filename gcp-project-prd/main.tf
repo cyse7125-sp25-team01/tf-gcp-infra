@@ -62,6 +62,8 @@ module "sm" {
   postgres_password = var.postgres_password
   secret_name       = var.secret_name
   dockerhub-secret  = var.dockerhub-secret
+  openapi-key       = var.openapi-key
+  pineconeapi-key   = var.pineconeapi-key
 }
 
 # module "dns_record" {

@@ -33,3 +33,39 @@ resource "google_secret_manager_secret_version" "dockerhub-secret_version" {
 
   secret_data = var.dockerhub-secret
 }
+
+resource "google_secret_manager_secret" "openapi-key" {
+  secret_id = "openapi-key"
+  replication {
+    user_managed {
+      replicas {
+        location = var.region
+      }
+    }
+
+  }
+}
+
+resource "google_secret_manager_secret_version" "openapi-key_version" {
+  secret = google_secret_manager_secret.openapi-key.id
+
+  secret_data = var.openapi-key
+}
+
+resource "google_secret_manager_secret" "pineconeapi-key" {
+  secret_id = "pineconeapi-key"
+  replication {
+    user_managed {
+      replicas {
+        location = var.region
+      }
+    }
+
+  }
+}
+
+resource "google_secret_manager_secret_version" "pineconeapi-key_version" {
+  secret = google_secret_manager_secret.pineconeapi-key.id
+
+  secret_data = var.pineconeapi-key
+}

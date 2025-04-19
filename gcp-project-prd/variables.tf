@@ -76,6 +76,17 @@ variable "pubsub_subscription_name" {
   type        = string
 }
 
+variable "openapi-key" {
+  description = "Openapi key secret"
+  type        = string
+}
+
+variable "pineconeapi-key" {
+  description = "Pinecone api secret"
+  type        = string
+}
+
+
 variable "secret_name" {
   description = "Secret Name"
   type        = string
